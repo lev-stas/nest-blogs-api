@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './users.schema';
 import { Model } from 'mongoose';
-import { CreateUserDtoType } from '../types/types';
+import {
+  CreateUserDtoType,
+  SimpleUserDtoType,
+  UsersResponseDtoType,
+} from '../types/types';
 import { v4 as uuidv4 } from 'uuid';
 import { genSalt, hash } from 'bcrypt';
 
@@ -10,7 +14,10 @@ import { genSalt, hash } from 'bcrypt';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async createUser(adminCreation: boolean, dto: CreateUserDtoType) {
+  async createUser(
+    adminCreation: boolean,
+    dto: CreateUserDtoType,
+  ): Promise<SimpleUserDtoType> {
     const salt = await genSalt(10);
     const passHash = await hash(dto.password, salt);
     const userToCreate = {
@@ -48,7 +55,7 @@ export class UsersService {
     pageSize = 10,
     searchLoginTerm = '/*',
     searchEmailTerm = '/*',
-  ) {
+  ): Promise<UsersResponseDtoType> {
     const directionOfSort = sortDirection === 'desc' ? -1 : 1;
     const skipNumber = pageNumber < 2 ? 0 : (pageNumber - 1) * pageSize;
     const totalUsers = await this.userModel.countDocuments({
@@ -79,20 +86,20 @@ export class UsersService {
       .lean();
     return {
       pagesCount: Math.ceil(totalUsers / pageSize),
-      pageNumber: +pageNumber,
+      page: +pageNumber,
       pageSize: +pageSize,
       totalCount: +totalUsers,
       items: users,
     };
   }
 
-  async deleteUserById(id: string) {
+  async deleteUserById(id: string): Promise<boolean> {
     const deletionResult = await this.userModel.deleteOne({ id: id });
     console.log(deletionResult.deletedCount);
     return deletionResult.deletedCount > 0;
   }
 
-  async deleteAllUsers() {
-    return this.userModel.deleteMany({});
+  async deleteAllUsers(): Promise<User> {
+    return this.userModel.deleteMany({}).lean();
   }
 }

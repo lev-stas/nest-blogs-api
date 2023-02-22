@@ -40,7 +40,7 @@ export class PostsController {
 
   @Get(':id/comments')
   async getPostsComments(@Param('id') id: string) {
-    const comments = await this.commentsService.getCommentsofPost(id);
+    const comments = await this.commentsService.getCommentsOfPost(id);
     if (!comments) {
       throw new NotFoundException();
     }

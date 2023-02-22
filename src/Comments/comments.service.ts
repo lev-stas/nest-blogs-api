@@ -22,7 +22,7 @@ export class CommentsService {
     return comment;
   }
 
-  async getCommentsofPost(postId: string) {
+  async getCommentsOfPost(postId: string) {
     const targetPost = await this.postModel.findOne({ id: postId });
     if (!targetPost) {
       return null;

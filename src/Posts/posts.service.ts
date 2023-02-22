@@ -3,7 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './posts.schema';
 import { Blog, BlogDocument } from '../Blogs/blogs.schema';
 import { Model } from 'mongoose';
-import { CreatePostDtoType, PostsResponseDtoType } from '../types/types';
+import {
+  CreatePostDtoType,
+  FullPostResponseDtoType,
+  PostsResponseDtoType,
+} from '../types/types';
 import { v4 as uuidv4 } from 'uuid';
 import { PostLike, PostLikesDocument } from '../Likes/likes.schema';
 
@@ -62,7 +66,7 @@ export class PostsService {
     sortBy = 'createdAt',
     sortDirection = 'desc',
     blogId = null,
-  ) {
+  ): Promise<FullPostResponseDtoType> {
     const findPostFilter = blogId ? { blogId: blogId } : {};
     const totalPosts = await this.postModel.countDocuments(findPostFilter);
     const skipNumber = pageNumber < 2 ? 0 : (pageNumber - 1) * pageSize;
@@ -157,7 +161,7 @@ export class PostsService {
     return targetPost.save();
   }
 
-  async deletePostById(id: string) {
+  async deletePostById(id: string): Promise<boolean> {
     const deletionResult = await this.postModel.deleteOne({ id: id });
     if (!(deletionResult.deletedCount > 0)) {
       return null;
@@ -166,7 +170,7 @@ export class PostsService {
     return deletionResult.acknowledged;
   }
 
-  async deleteAllPosts() {
+  async deleteAllPosts(): Promise<boolean> {
     await this.postModel.deleteMany({});
     return true;
   }

@@ -49,6 +49,14 @@ export type PostsResponseDtoType = {
   };
 };
 
+export type FullPostResponseDtoType = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: PostsResponseDtoType[];
+};
+
 export type CreateUserDtoType = {
   login: string;
   password: string;
