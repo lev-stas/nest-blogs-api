@@ -11,10 +11,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { CommentsService } from '../Comments/comments.service';
 
 @Controller('posts')
 export class PostsController {
-  constructor(protected postService: PostsService) {}
+  constructor(
+    protected postService: PostsService,
+    protected commentsService: CommentsService,
+  ) {}
   @Get()
   async getAllPosts(
     @Query('pageNumber') pageNumber: number,
@@ -33,6 +37,16 @@ export class PostsController {
     }
     return targetPost;
   }
+
+  @Get(':id/comments')
+  async getPostsComments(@Param('id') id: string) {
+    const comments = await this.commentsService.getCommentsofPost(id);
+    if (!comments) {
+      throw new NotFoundException();
+    }
+    return comments;
+  }
+
   @Post()
   async postNewPost(
     @Body()

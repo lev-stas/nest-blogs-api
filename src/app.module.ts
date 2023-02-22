@@ -16,6 +16,8 @@ import { LikesService } from './Likes/likes.service';
 import { UsersController } from './Users/users.controller';
 import { UsersService } from './Users/users.service';
 import { User, UserSchema } from './Users/users.schema';
+import { Comment, CommentsSchema } from './Comments/comments.schema';
+import { CommentsService } from './Comments/comments.service';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { User, UserSchema } from './Users/users.schema';
       { name: Post.name, schema: PostSchema },
       { name: PostLike.name, schema: PostLikeSchema },
       { name: User.name, schema: UserSchema },
+      { name: Comment.name, schema: CommentsSchema },
     ]),
   ],
   controllers: [
@@ -43,6 +46,7 @@ import { User, UserSchema } from './Users/users.schema';
     PostsService,
     LikesService,
     UsersService,
+    CommentsService,
   ],
 })
 export class AppModule {}

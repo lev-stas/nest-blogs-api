@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpCode, HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
+import { response } from 'express';
 
 describe('BlogsController (e2e)', () => {
   let app: INestApplication;
@@ -156,6 +157,44 @@ describe('BlogsController (e2e)', () => {
       expect(response.body.totalCount).toEqual(posts.length);
       expect(response.body.items[0].title).toEqual('Post number 2');
       expect(response.body.items[1].title).toEqual('Post number 3');
+    });
+  });
+  describe('GET /post/:id/comments', () => {
+    let blogId = '';
+    let postId = '';
+    it('should create blog for post comment test', async () => {
+      const blog = await request(app.getHttpServer())
+        .post('/blogs')
+        .send({
+          name: 'post comment blog',
+          description: 'description of post comment blog',
+          websiteUrl: 'www.myblogDomain.com',
+        })
+        .expect(HttpStatus.CREATED);
+      blogId = blog.body.id;
+    });
+    it('should create a post for comment test', async () => {
+      const post = await request(app.getHttpServer())
+        .post('/posts')
+        .send({
+          title: 'post for get comments test',
+          shortDescription: 'description for post for get comments test',
+          content: 'content of post for get comments test',
+          blogId: blogId,
+        })
+        .expect(HttpStatus.CREATED);
+      postId = post.body.id;
+    });
+    it('should return empty array for request', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/posts/${postId}/comments`)
+        .expect(HttpStatus.OK);
+      expect(response.body).toEqual([]);
+    });
+    it('should return 404 error for not existing blog', async () => {
+      await request(app.getHttpServer())
+        .get('/posts/non-existing-post-id/comments')
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 });
