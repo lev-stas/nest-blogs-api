@@ -67,7 +67,7 @@ export class UsersService {
     const users = await this.userModel
       .find(
         {
-          $or: [
+          $and: [
             { login: { $regex: searchLoginTerm, $options: 'i' } },
             { email: { $regex: searchEmailTerm, $options: 'i' } },
           ],
@@ -88,7 +88,7 @@ export class UsersService {
       pagesCount: Math.ceil(totalUsers / pageSize),
       page: +pageNumber,
       pageSize: +pageSize,
-      totalCount: +totalUsers,
+      totalCount: totalUsers,
       items: users,
     };
   }

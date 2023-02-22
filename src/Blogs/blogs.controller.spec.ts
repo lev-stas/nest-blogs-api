@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpCode, HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
 
@@ -49,7 +49,7 @@ describe('BlogsController (e2e)', () => {
         expect(response.body.description).toEqual('blogs description');
         expect(response.body.websiteUrl).toEqual('www.myblog.com');
         expect(response.body.createdAt).toBeDefined();
-        expect(response.body.isMembership).toEqual(true);
+        expect(response.body.isMembership).toEqual(false);
 
         blogIds.push(response.body.name);
       }
@@ -71,7 +71,7 @@ describe('BlogsController (e2e)', () => {
         expect(response.body.description).toEqual('blogs description');
         expect(response.body.websiteUrl).toEqual('www.myblog.com');
         expect(response.body.createdAt).toBeDefined();
-        expect(response.body.isMembership).toEqual(true);
+        expect(response.body.isMembership).toEqual(false);
 
         blogIds.push(response.body.name);
       }
@@ -110,7 +110,7 @@ describe('BlogsController (e2e)', () => {
       expect(response.body.description).toEqual(newBlog.description);
       expect(response.body.websiteUrl).toEqual(newBlog.websiteUrl);
       expect(response.body.createdAt).toBeDefined();
-      expect(response.body.isMembership).toEqual(true);
+      expect(response.body.isMembership).toEqual(false);
       myBlogId = response.body.id;
     });
     it('should return blog by id', async () => {
@@ -122,7 +122,7 @@ describe('BlogsController (e2e)', () => {
       expect(response.body.description).toEqual(newBlog.description);
       expect(response.body.websiteUrl).toEqual(newBlog.websiteUrl);
       expect(response.body.createdAt).toBeDefined();
-      expect(response.body.isMembership).toEqual(true);
+      expect(response.body.isMembership).toEqual(false);
     });
     it('should return 404 if get wrong blog', async () => {
       await request(app.getHttpServer())
@@ -191,6 +191,47 @@ describe('BlogsController (e2e)', () => {
       expect(response.body.title).toEqual(dto.title);
       expect(response.body.shortDescription).toEqual(dto.shortDescription);
       expect(response.body.content).toEqual(dto.content);
+    });
+  });
+  describe('GET /blogs/:id/posts', () => {
+    let blogId = '';
+    it('should create blog for getting its post', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/blogs')
+        .send({
+          name: 'test blog',
+          description: 'test blog description',
+          websiteUrl: 'www.someblog.com',
+        })
+        .expect(HttpStatus.CREATED);
+      blogId = response.body.id;
+    });
+    it('should create 5 posts for current blog', async () => {
+      for (let i = 1; i < 6; i++) {
+        await request(app.getHttpServer())
+          .post(`/blogs/${blogId}/posts`)
+          .send({
+            title: `post number ${i}`,
+            shortDescription: 'description of a post',
+            content: 'content of a post',
+          })
+          .expect(HttpStatus.CREATED);
+      }
+    });
+    it('should return posts of current blog', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/blogs/${blogId}/posts`)
+        .expect(HttpStatus.OK);
+      expect(response.body.pagesCount).toEqual(1);
+      expect(response.body.page).toEqual(1);
+      expect(response.body.pageSize).toEqual(10);
+      expect(response.body.totalCount).toEqual(5);
+      expect(response.body.items.length).toEqual(5);
+    });
+    it('should return 404 error if post is not existing', async () => {
+      await request(app.getHttpServer())
+        .get('/blogs/non-existing-blog-id/posts')
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
   describe('GET all posts of a current blog', () => {

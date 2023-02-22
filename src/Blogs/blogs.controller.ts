@@ -54,6 +54,10 @@ export class BlogsController {
     @Query('sortBy') sortBy: string,
     @Query('sortDirection') sortDirection: string,
   ) {
+    const targetBlog = await this.blogsRepository.findBlogById(id);
+    if (!targetBlog) {
+      throw new NotFoundException();
+    }
     return this.postsService.getAll(
       pageNumber,
       pageSize,
