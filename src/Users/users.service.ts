@@ -59,7 +59,7 @@ export class UsersService {
     const directionOfSort = sortDirection === 'desc' ? -1 : 1;
     const skipNumber = pageNumber < 2 ? 0 : (pageNumber - 1) * pageSize;
     const totalUsers = await this.userModel.countDocuments({
-      $and: [
+      $or: [
         { login: { $regex: searchLoginTerm, $options: 'i' } },
         { email: { $regex: searchEmailTerm, $options: 'i' } },
       ],
@@ -67,7 +67,7 @@ export class UsersService {
     const users = await this.userModel
       .find(
         {
-          $and: [
+          $or: [
             { login: { $regex: searchLoginTerm, $options: 'i' } },
             { email: { $regex: searchEmailTerm, $options: 'i' } },
           ],
