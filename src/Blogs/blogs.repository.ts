@@ -1,5 +1,5 @@
-import { Model } from 'mongoose';
-import { Injectable, Res } from '@nestjs/common';
+import mongoose, { Model } from 'mongoose';
+import { Delete, Injectable, Res } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from './blogs.schema';
 import {
@@ -66,11 +66,35 @@ export class BlogsRepository {
       .lean();
   }
 
-  async deleteBlogById(id: string) {
-    return this.blogModel.deleteOne({ id: id });
+  async deleteBlogById(id: string): Promise<Blog> {
+    const targetBlog = await this.blogModel.findOne({ id: id });
+    if (!targetBlog) {
+      return null;
+    }
+    return this.blogModel.deleteOne({ id: id }).lean();
   }
 
-  async deleteAll() {
-    return this.blogModel.deleteMany({});
+  async changeCurrentBlog(
+    id: string,
+    content: { name?: string; description?: string; websiteUrl?: string },
+  ): Promise<Blog> {
+    const targetBlog = await this.blogModel.findOne({ id: id });
+    if (!targetBlog) {
+      return null;
+    }
+    if (content.name) {
+      targetBlog.name = content.name;
+    }
+    if (content.description) {
+      targetBlog.description = content.description;
+    }
+    if (content.websiteUrl) {
+      targetBlog.websiteUrl = content.websiteUrl;
+    }
+    return targetBlog.save();
+  }
+
+  async deleteAll(): Promise<Blog> {
+    return this.blogModel.deleteMany({}).lean();
   }
 }
