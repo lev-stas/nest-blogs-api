@@ -90,7 +90,7 @@ describe('BlogsController (e2e)', () => {
         )
         .expect(HttpStatus.OK);
       expect(response.body.pagesCount).toEqual(3);
-      expect(response.body.pageNumber).toEqual(2);
+      expect(response.body.page).toEqual(2);
       expect(response.body.pageSize).toEqual(2);
       expect(response.body.items[0].login).toEqual('user 2');
       expect(response.body.items[1].login).toEqual('user 3');
