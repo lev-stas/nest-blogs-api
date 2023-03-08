@@ -1,4 +1,5 @@
 import { Like } from '../Likes/likes.schema';
+import { IsEmail, Length } from 'class-validator';
 
 export type CreateBlogDtoType = {
   name: string;
@@ -57,11 +58,14 @@ export type FullPostResponseDtoType = {
   items: PostsResponseDtoType[];
 };
 
-export type CreateUserDtoType = {
+export class CreateUserDtoType {
+  @Length(3, 10)
   login: string;
+  @Length(6, 20)
   password: string;
+  @IsEmail()
   email: string;
-};
+}
 
 export type SimpleUserDtoType = {
   id: string;

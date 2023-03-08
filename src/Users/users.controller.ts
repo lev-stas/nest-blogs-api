@@ -10,14 +10,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDtoType } from '../types/types';
 
 @Controller('users')
 export class UsersController {
   constructor(protected usersService: UsersService) {}
   @Post()
-  async createUser(
-    @Body() dto: { login: string; email: string; password: string },
-  ) {
+  async createUser(@Body() dto: CreateUserDtoType) {
     return this.usersService.createUser(true, dto);
   }
 
